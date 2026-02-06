@@ -333,6 +333,10 @@ paket-files/
 __pycache__/
 *.pyc
 
+# podideas cache and output
+.podideas_cache/
+suggested_topics.json
+
 # Cake - Uncomment if you are using it
 # tools/**
 # !tools/packages.config
