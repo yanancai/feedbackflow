@@ -21,14 +21,36 @@ pip install -r requirements.txt
 
 ## Usage
 
+The simplest way to get started is to edit `podideas.config.json` with your
+playlist URL(s) and set API keys in a `.env` file, then run:
+
+```bash
+python podideas.py
+```
+
+You can also pass playlists on the command line (full URLs or bare IDs both work):
+
 ```bash
 python podideas.py \
-  --playlist "PL0M0zPgJ3HSf4XZvYgZPUXgSrfzBN26pf" \
-  --yt-api-key "YOUR_YOUTUBE_API_KEY" \
-  --aoai-endpoint "https://YOUR_RESOURCE.openai.azure.com/" \
-  --aoai-api-key "YOUR_AZURE_OPENAI_KEY" \
-  --aoai-deployment "gpt-5-chat"
+  -p "https://www.youtube.com/watch?v=A-3I1mLYkxU&list=PL0M0zPgJ3HSf4XZvYgZPUXgSrfzBN26pf"
 ```
+
+Playlists from the config file and CLI are merged and deduplicated.
+
+### Config File
+
+`podideas.config.json` stores playlist URLs so you don't need to pass them every
+time. Edit the `playlists` array to add or remove playlists:
+
+```json
+{
+  "playlists": [
+    "https://www.youtube.com/watch?v=A-3I1mLYkxU&list=PL0M0zPgJ3HSf4XZvYgZPUXgSrfzBN26pf"
+  ]
+}
+```
+
+Both full YouTube URLs and bare playlist IDs are accepted.
 
 ### Environment Variables
 
@@ -56,7 +78,8 @@ AZURE_OPENAI_DEPLOYMENT=gpt-5-chat
 
 | Flag | Description |
 |---|---|
-| `--playlist`, `-p` | YouTube playlist ID(s) to process |
+| `--playlist`, `-p` | YouTube playlist ID or URL (can be specified multiple times) |
+| `--config`, `-c` | JSON config file with playlist URLs (default: `podideas.config.json`) |
 | `--yt-api-key` | YouTube Data API key |
 | `--aoai-endpoint` | Azure OpenAI endpoint URL |
 | `--aoai-api-key` | Azure OpenAI API key |

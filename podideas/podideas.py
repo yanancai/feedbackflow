@@ -30,10 +30,37 @@ YT_API_BASE = "https://www.googleapis.com/youtube/v3"
 DEFAULT_CACHE_DIR = ".podideas_cache"
 DEFAULT_OUTPUT = "suggested_topics.json"
 DEFAULT_DEPLOYMENT = "gpt-5-chat"
+DEFAULT_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)), "podideas.config.json")
 
 COMMENTS_CACHE_FILE = "comments_cache.json"
 VIDEOS_CACHE_FILE = "videos_cache.json"
 SUGGESTIONS_FILE = "suggestions.json"
+
+# ---------------------------------------------------------------------------
+# Config / playlist helpers
+# ---------------------------------------------------------------------------
+
+def _extract_playlist_id(value: str) -> str:
+    """Extract a playlist ID from a YouTube URL or return as-is if already an ID."""
+    value = value.strip()
+    parsed = urllib.parse.urlparse(value)
+    if parsed.hostname in ("www.youtube.com", "youtube.com", "youtu.be"):
+        qs = urllib.parse.parse_qs(parsed.query)
+        if "list" in qs:
+            return qs["list"][0]
+    return value
+
+
+def _load_config_playlists(config_path: str) -> list[str]:
+    """Load playlist entries from the JSON config file and return playlist IDs."""
+    path = Path(config_path)
+    if not path.exists():
+        return []
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    raw = data.get("playlists", [])
+    return [_extract_playlist_id(p) for p in raw if p]
+
 
 # ---------------------------------------------------------------------------
 # YouTube helpers
@@ -253,8 +280,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-p", "--playlist",
         action="append",
-        required=True,
-        help="YouTube playlist ID (can be specified multiple times).",
+        help="YouTube playlist ID or URL (can be specified multiple times).",
+    )
+    parser.add_argument(
+        "-c", "--config",
+        default=DEFAULT_CONFIG,
+        help=f"JSON config file with playlist URLs (default: {os.path.basename(DEFAULT_CONFIG)}).",
     )
     parser.add_argument(
         "--yt-api-key",
@@ -301,11 +332,24 @@ def main(argv: list[str] | None = None) -> int:
     if not args.aoai_api_key:
         parser.error("Azure OpenAI API key is required (--aoai-api-key or AZURE_OPENAI_API_KEY env var).")
 
+    # Merge playlists from CLI args and config file
+    playlist_ids: list[str] = []
+    if args.playlist:
+        playlist_ids.extend(_extract_playlist_id(p) for p in args.playlist)
+    config_playlists = _load_config_playlists(args.config)
+    if config_playlists:
+        print(f"Loaded {len(config_playlists)} playlist(s) from {args.config}")
+        playlist_ids.extend(config_playlists)
+    # Deduplicate while preserving order
+    playlist_ids = list(dict.fromkeys(playlist_ids))
+    if not playlist_ids:
+        parser.error("No playlists specified. Use -p/--playlist or add entries to podideas.config.json.")
+
     cache = Cache(args.cache_dir)
 
     # --- 1. Fetch videos from playlists ---
     all_videos: dict[str, dict] = {}
-    for pl_id in args.playlist:
+    for pl_id in playlist_ids:
         for v in fetch_video_ids(pl_id, args.yt_api_key):
             all_videos[v["id"]] = v
             cache.videos[v["id"]] = v
