@@ -14,6 +14,14 @@ This tool retrieves data from GitHub issues and discussions, including associate
 
 This tool gathers comments from specified YouTube videos or playlists and exports them into JSON format. Input sources can be configured through a file or directly via command-line arguments.
 
+### Podcast Idea Extractor (`podideas`)
+
+A Python CLI toolkit with two tools:
+- **`ytdump.py`** — Python port of the .NET `ytdump`, dumps YouTube comments to JSON.
+- **`podideas.py`** — Analyzes comments with Azure OpenAI (`gpt-5-chat`) to identify suggested podcast topics, with incremental caching.
+
+See [`podideas/README.md`](podideas/README.md) for details.
+
 ## Getting Started
 
 ### Prerequisites
