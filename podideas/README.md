@@ -32,7 +32,9 @@ python podideas.py \
 
 ### Environment Variables
 
-Instead of passing keys on the command line, you can set:
+Instead of passing keys on the command line, you can set environment variables or
+place them in a `.env` file in the working directory. The tool loads `.env`
+automatically on startup.
 
 | Variable | Description |
 |---|---|
@@ -40,6 +42,15 @@ Instead of passing keys on the command line, you can set:
 | `AZURE_OPENAI_ENDPOINT` | Azure OpenAI endpoint URL |
 | `AZURE_OPENAI_API_KEY` | Azure OpenAI API key |
 | `AZURE_OPENAI_DEPLOYMENT` | Deployment name (defaults to `gpt-5-chat`) |
+
+Example `.env` file:
+
+```
+YT_APIKEY=your_youtube_api_key
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your_azure_openai_key
+AZURE_OPENAI_DEPLOYMENT=gpt-5-chat
+```
 
 ### Options
 

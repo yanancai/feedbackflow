@@ -17,7 +17,11 @@ import urllib.error
 from datetime import datetime, timezone
 from pathlib import Path
 
+from dotenv import load_dotenv
 from openai import AzureOpenAI
+
+# Load .env file if present (keys defined there become available via os.environ)
+load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Constants
