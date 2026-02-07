@@ -1,16 +1,19 @@
 # podideas - Podcast Idea Extractor
 
-A small, self-contained Python CLI tool that pulls YouTube comments from a playlist and uses Azure OpenAI (gpt-5-chat) to identify suggested podcast topics.
+A small, self-contained Python CLI toolkit that pulls YouTube comments and uses Azure OpenAI (gpt-5-chat) to identify suggested podcast topics.
 
-## Overview
+## Tools
 
-`podideas` fetches comments from all videos in a YouTube playlist, analyzes them with Azure OpenAI to find suggested topics for future episodes, and maintains a local cache so only new comments are processed on subsequent runs.
+| Script | Description |
+|---|---|
+| `ytdump.py` | Dump YouTube video/playlist comments to JSON (Python port of the .NET `ytdump`) |
+| `podideas.py` | Analyze comments with Azure OpenAI to extract podcast topic suggestions |
 
 ## Prerequisites
 
 - Python 3.9+
 - A YouTube Data API v3 key
-- Azure OpenAI endpoint and API key with access to the `gpt-5-chat` model
+- Azure OpenAI endpoint and API key with access to the `gpt-5-chat` model (for `podideas.py`)
 
 ## Installation
 
@@ -19,7 +22,74 @@ cd podideas
 pip install -r requirements.txt
 ```
 
-## Usage
+## ytdump.py — YouTube Comment Dumper
+
+A Python port of the .NET `ytdump` tool. Dumps all comments from YouTube videos
+and playlists into a JSON file with the same output format.
+
+### Usage
+
+```bash
+# Dump comments for specific videos
+python ytdump.py -v VIDEO_ID -k YOUR_API_KEY
+
+# Dump comments for all videos in a playlist
+python ytdump.py -p PLAYLIST_ID -k YOUR_API_KEY
+
+# Use a config file (same format as the .NET ytdump yt.json)
+python ytdump.py -f yt.json -k YOUR_API_KEY
+
+# API key can also come from .env or YT_APIKEY env var
+python ytdump.py -p PLAYLIST_ID
+```
+
+### Options
+
+| Flag | Description |
+|---|---|
+| `-v`, `--video` | Video ID to process (can be specified multiple times) |
+| `-p`, `--playlist` | Playlist ID to process (can be specified multiple times) |
+| `-f`, `--file` | JSON config file with `Videos` and `Playlists` arrays |
+| `-k`, `--key` | YouTube Data API key (env: `YT_APIKEY`) |
+| `-o`, `--output` | Output file path (default: `comments.json`) |
+
+### Output Format
+
+The output is a JSON array of video objects:
+
+```json
+[
+  {
+    "id": "VIDEO_ID",
+    "title": "Video Title",
+    "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+    "uploadDate": "2024-01-01T00:00:00Z",
+    "comments": [
+      {
+        "id": "COMMENT_ID",
+        "author": "User Name",
+        "text": "Comment text",
+        "publishedAt": "2024-01-02T00:00:00Z"
+      },
+      {
+        "id": "REPLY_ID",
+        "author": "Another User",
+        "text": "Reply text",
+        "publishedAt": "2024-01-03T00:00:00Z",
+        "parentId": "COMMENT_THREAD_ID"
+      }
+    ]
+  }
+]
+```
+
+## podideas.py — Podcast Idea Extractor
+
+Analyzes YouTube comments with Azure OpenAI to find suggested topics for future
+podcast episodes. Maintains a local cache so only new comments are processed on
+subsequent runs.
+
+### Usage
 
 The simplest way to get started is to edit `podideas.config.json` with your
 playlist URL(s) and set API keys in a `.env` file, then run:

@@ -16,7 +16,11 @@ This tool gathers comments from specified YouTube videos or playlists and export
 
 ### Podcast Idea Extractor (`podideas`)
 
-A Python CLI tool that pulls comments from a YouTube playlist, uses Azure OpenAI (`gpt-5-chat`) to identify suggested podcast topics, and maintains a local cache for incremental processing. See [`podideas/README.md`](podideas/README.md) for details.
+A Python CLI toolkit with two tools:
+- **`ytdump.py`** — Python port of the .NET `ytdump`, dumps YouTube comments to JSON.
+- **`podideas.py`** — Analyzes comments with Azure OpenAI (`gpt-5-chat`) to identify suggested podcast topics, with incremental caching.
+
+See [`podideas/README.md`](podideas/README.md) for details.
 
 ## Getting Started
 
